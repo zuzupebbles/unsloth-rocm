@@ -1,5 +1,4 @@
 # ROCm-enabled PyTorch base image from AMD
-# Pick a tag that matches your installed ROCm driver best; this one is a good default.
 FROM rocm/pytorch:rocm7.1.1_ubuntu22.04_py3.10_pytorch_release_2.9.1
 
 # OCI metadata for discoverability
@@ -16,11 +15,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install Unsloth (AMD is supported via regular pip install)
-# Unsloth itself is Apache-2.0 licensed.
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir unsloth
 
-# Optional: tools you’ll almost certainly want when experimenting
+# Optional tools for experimenting
 RUN pip install --no-cache-dir \
       "transformers>=4.45.0" \
       datasets \
