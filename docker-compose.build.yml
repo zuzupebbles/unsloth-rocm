@@ -1,0 +1,52 @@
+services:
+  unsloth-rocm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+
+    # Image name for local use; you can retag this for Docker Hub.
+    image: zuzupebbles/unsloth-rocm:local
+
+    container_name: unsloth-rocm
+    restart: unless-stopped
+
+    # ROCm device plumbing – basically AMD's recommended set.
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "video"   # host group that has access to /dev/kfd and /dev/dri
+      # - "render"  # optional, if your distro uses it
+
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    ipc: host
+    shm_size: "16g"
+
+    environment:
+      # If you only want GPU 0, set explicitly:
+      - ROCM_VISIBLE_DEVICES=0
+
+      # HF cache so you don't redownload models all the time
+      - HF_HOME=/data/hf-cache
+      - HUGGINGFACE_HUB_CACHE=/data/hf-cache
+      - TRANSFORMERS_CACHE=/data/hf-cache
+
+    volumes:
+      # Workspace for notebooks / scripts
+      - ./workspace:/workspace
+
+      # Hugging Face cache on host
+      - ~/.cache/huggingface:/data/hf-cache
+
+      # Optional: local repo clones or model sources
+      - ./repos-clone:/repos-clone
+
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
